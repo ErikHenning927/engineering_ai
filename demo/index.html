@@ -1,0 +1,1081 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mapa Mental da Arquitetura Multi-Agente | Glassmorphism Interativo</title>
+  <style>
+    :root {
+      --bg: #040711;
+      --glass-base: rgba(15, 23, 42, 0.55);
+      --glass-panel: rgba(18, 26, 47, 0.72);
+      --glass-border: rgba(255, 255, 255, 0.12);
+      --glass-border-hover: rgba(255, 255, 255, 0.28);
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --cyan: #38bdf8;
+      --purple: #c084fc;
+      --emerald: #34d399;
+      --rose: #fb7185;
+      --amber: #fbbf24;
+      --blue: #60a5fa;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Inter", Helvetica, Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Ambient Mesh Glows */
+    .orb {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(120px);
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.35;
+      animation: floatOrb 18s ease-in-out infinite alternate;
+    }
+    .orb-1 { width: 550px; height: 550px; background: #0284c7; top: -100px; left: -100px; }
+    .orb-2 { width: 600px; height: 600px; background: #7c3aed; bottom: -120px; right: -80px; animation-duration: 22s; }
+    .orb-3 { width: 450px; height: 450px; background: #059669; top: 40%; left: 45%; animation-duration: 16s; }
+
+    @keyframes floatOrb {
+      0% { transform: translate(0, 0) scale(1); }
+      100% { transform: translate(40px, 30px) scale(1.1); }
+    }
+
+    /* Subtle grid overlay */
+    .grid-bg {
+      position: fixed;
+      inset: 0;
+      background-size: 32px 32px;
+      background-image: 
+        linear-gradient(to right, rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* Ultra Glass Class */
+    .glass {
+      background: var(--glass-base);
+      backdrop-filter: blur(28px) saturate(180%);
+      -webkit-backdrop-filter: blur(28px) saturate(180%);
+      border: 1px solid var(--glass-border);
+      border-radius: 20px;
+      box-shadow: 
+        0 20px 40px -15px rgba(0, 0, 0, 0.65),
+        inset 0 1px 1px 0 rgba(255, 255, 255, 0.2),
+        inset 0 -1px 1px 0 rgba(0, 0, 0, 0.4);
+      transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    /* Top Navigation Bar */
+    header {
+      position: relative;
+      z-index: 20;
+      padding: 16px 28px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(4, 7, 17, 0.7);
+      backdrop-filter: blur(20px);
+    }
+
+    .brand-wrap {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .pulse-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      background: rgba(56, 189, 248, 0.12);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      color: var(--cyan);
+      box-shadow: 0 0 15px rgba(56, 189, 248, 0.2);
+    }
+
+    .pulse-light {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--cyan);
+      box-shadow: 0 0 8px var(--cyan);
+      animation: pulseAnim 1.8s infinite;
+    }
+
+    @keyframes pulseAnim {
+      0% { transform: scale(0.9); opacity: 0.7; }
+      50% { transform: scale(1.35); opacity: 1; }
+      100% { transform: scale(0.9); opacity: 0.7; }
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .action-btn {
+      padding: 9px 18px;
+      font-size: 13px;
+      font-weight: 700;
+      border-radius: 12px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      border: 1px solid transparent;
+    }
+
+    .btn-tour {
+      background: linear-gradient(135deg, #0284c7 0%, #2563eb 100%);
+      color: #ffffff;
+      box-shadow: 0 4px 18px rgba(2, 132, 199, 0.45);
+    }
+    .btn-tour:hover {
+      box-shadow: 0 6px 24px rgba(2, 132, 199, 0.65);
+      transform: translateY(-1px);
+    }
+
+    .btn-sim {
+      background: rgba(255, 255, 255, 0.08);
+      color: #e2e8f0;
+      border-color: rgba(255, 255, 255, 0.14);
+    }
+    .btn-sim:hover {
+      background: rgba(255, 255, 255, 0.15);
+      border-color: rgba(255, 255, 255, 0.28);
+    }
+
+    /* Canvas Map Area */
+    .map-viewport {
+      position: relative;
+      z-index: 5;
+      flex: 1;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 20px;
+      overflow: hidden;
+    }
+
+    /* Map Stage (Scales and Shifts smoothly when drawer opens) */
+    .map-stage {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+      transform-origin: center center;
+    }
+
+    .map-stage.shifted {
+      transform: translateX(-230px) scale(0.86);
+    }
+
+    /* SVG Connectivity Wires */
+    .svg-wires {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 1068px;
+      height: 480px;
+      pointer-events: none;
+      z-index: 6;
+    }
+
+    .wire-path {
+      fill: none;
+      stroke: rgba(255, 255, 255, 0.14);
+      stroke-width: 2.5;
+      stroke-dasharray: 6 6;
+      transition: all 0.5s ease;
+    }
+
+    .wire-active {
+      stroke: var(--cyan);
+      stroke-width: 3.5;
+      stroke-dasharray: 8 6;
+      animation: dashMove 1.5s linear infinite;
+      filter: drop-shadow(0 0 8px rgba(56, 189, 248, 0.8));
+    }
+
+    .wire-danger {
+      stroke: var(--rose);
+      stroke-width: 3.5;
+      stroke-dasharray: 8 6;
+      animation: dashMove 1s linear infinite;
+      filter: drop-shadow(0 0 8px rgba(251, 113, 133, 0.8));
+    }
+
+    @keyframes dashMove {
+      from { stroke-dashoffset: 28; }
+      to { stroke-dashoffset: 0; }
+    }
+
+    /* Node Layout Matrix */
+    .nodes-grid {
+      position: relative;
+      z-index: 10;
+      display: grid;
+      grid-template-columns: repeat(4, 240px);
+      grid-template-rows: repeat(3, 140px);
+      gap: 30px 36px;
+      align-items: center;
+      justify-content: center;
+      width: 1068px;
+    }
+
+    /* Individual Mind Map Node */
+    .map-node {
+      position: relative;
+      padding: 18px 22px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      border-radius: 18px;
+      user-select: none;
+    }
+
+    .map-node:hover {
+      border-color: var(--glass-border-hover);
+      transform: translateY(-3px) scale(1.02);
+      box-shadow: 0 16px 36px -10px rgba(0, 0, 0, 0.8), inset 0 1px 1px 0 rgba(255, 255, 255, 0.25);
+    }
+
+    .map-node.selected-node {
+      border-color: var(--cyan);
+      box-shadow: 
+        0 0 35px -5px rgba(56, 189, 248, 0.5),
+        inset 0 0 15px rgba(56, 189, 248, 0.2);
+      transform: scale(1.04);
+    }
+
+    .map-node.selected-danger {
+      border-color: var(--rose);
+      box-shadow: 
+        0 0 35px -5px rgba(251, 113, 133, 0.5),
+        inset 0 0 15px rgba(251, 113, 133, 0.2);
+      transform: scale(1.04);
+    }
+
+    .node-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .node-icon-bubble {
+      width: 38px;
+      height: 38px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .node-layer-tag {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      padding: 3px 8px;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text-muted);
+    }
+
+    .node-name {
+      font-size: 15px;
+      font-weight: 700;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .node-desc-preview {
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.4;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    /* Node Positioning in the Grid */
+    #nodeClient      { grid-column: 1; grid-row: 2; }
+    #nodeGuardrail   { grid-column: 2; grid-row: 2; }
+    #nodeBlock       { grid-column: 2; grid-row: 1; }
+    #nodeSupervisor  { grid-column: 3; grid-row: 2; }
+    #nodeFallback    { grid-column: 3; grid-row: 1; }
+    #nodeKafka       { grid-column: 4; grid-row: 2; }
+    #nodeWorker      { grid-column: 4; grid-row: 3; }
+    #nodeJudge       { grid-column: 3; grid-row: 3; }
+    #nodeObservability { grid-column: 2; grid-row: 3; }
+
+    /* Frosted Side Detail Drawer (The Deep Explainer) */
+    .detail-drawer {
+      position: fixed;
+      top: 80px;
+      right: -470px;
+      width: 430px;
+      bottom: 24px;
+      background: var(--glass-panel);
+      backdrop-filter: blur(36px) saturate(200%);
+      -webkit-backdrop-filter: blur(36px) saturate(200%);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      border-radius: 24px;
+      box-shadow: -15px 25px 60px rgba(0, 0, 0, 0.75), inset 0 1px 1px rgba(255, 255, 255, 0.25);
+      z-index: 30;
+      padding: 26px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      overflow-y: auto;
+      transition: right 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .detail-drawer.open {
+      right: 20px;
+    }
+
+    .drawer-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      padding-bottom: 16px;
+    }
+
+    .drawer-title-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .drawer-badge {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      padding: 4px 10px;
+      border-radius: 6px;
+      width: fit-content;
+    }
+
+    .drawer-title {
+      font-size: 22px;
+      font-weight: 800;
+      color: #ffffff;
+      line-height: 1.25;
+    }
+
+    .close-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 14px;
+      transition: all 0.2s;
+    }
+    .close-btn:hover {
+      background: rgba(255, 255, 255, 0.18);
+      color: #fff;
+    }
+
+    .section-block {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .section-label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--text-muted);
+    }
+
+    .section-text {
+      font-size: 14px;
+      line-height: 1.6;
+      color: #e2e8f0;
+    }
+
+    /* Frosted Code Box for Real Payloads */
+    .code-glass {
+      background: rgba(6, 10, 20, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      padding: 14px 16px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 12px;
+      line-height: 1.5;
+      color: #7dd3fc;
+      overflow-x: auto;
+      max-height: 180px;
+    }
+
+    .metric-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .metric-card {
+      padding: 12px 14px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .metric-title {
+      font-size: 11px;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .metric-val {
+      font-size: 15px;
+      font-weight: 700;
+      color: #ffffff;
+    }
+
+    /* Bottom Control Bar (Presentation mode) */
+    .presentation-bar {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 25;
+      padding: 14px 26px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      min-width: 440px;
+    }
+
+    .tour-controls-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      width: 100%;
+    }
+
+    .tour-progress-track {
+      width: 100%;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .tour-progress-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--cyan), var(--purple));
+      border-radius: 999px;
+      transition: width 0.1s linear;
+      box-shadow: 0 0 10px var(--cyan);
+    }
+
+    .tour-counter {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--cyan);
+      white-space: nowrap;
+      text-align: center;
+    }
+
+    .playback-btn {
+      padding: 8px 16px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: #fff;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .playback-btn:hover {
+      background: rgba(255, 255, 255, 0.18);
+      border-color: rgba(255, 255, 255, 0.3);
+    }
+    .playback-btn.active-play {
+      background: rgba(56, 189, 248, 0.25);
+      border-color: var(--cyan);
+      color: var(--cyan);
+    }
+  </style>
+</head>
+<body>
+  <!-- Ambient glow orbs -->
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+  <div class="grid-bg"></div>
+
+  <!-- Header -->
+  <header>
+    <div class="brand-wrap">
+      <div class="pulse-badge">
+        <div class="pulse-light"></div>
+        <span>Ecossistema Corporativo de IA</span>
+      </div>
+      <h1 style="font-size: 18px; font-weight: 800; letter-spacing: -0.3px;">Mapa Mental Arquitetural</h1>
+    </div>
+
+    <div class="header-actions">
+      <button class="action-btn btn-sim" onclick="triggerSimulation('attack')">🚨 Simular Prompt Injection</button>
+      <button class="action-btn btn-sim" onclick="triggerSimulation('purchase')">🛒 Simular Compra / RAG</button>
+      <button class="action-btn btn-tour" onclick="startGuidedTour()">▶ Iniciar Tour do Cliente</button>
+    </div>
+  </header>
+
+  <!-- Interactive Map Canvas -->
+  <div class="map-viewport">
+    
+    <div class="map-stage" id="mapStage">
+      <!-- Dynamic SVG Wires connecting the nodes -->
+      <svg class="svg-wires" id="svgWires" viewBox="0 0 1068 480">
+        <!-- 1. Client -> Guardrail -->
+        <path id="wireClientGuardrail" class="wire-path" d="M 240 238 L 276 238" />
+        
+        <!-- 2. Guardrail -> Block (Attack branch) -->
+        <path id="wireGuardrailBlock" class="wire-path" d="M 396 170 L 396 140" />
+
+        <!-- 3. Guardrail -> Supervisor (Safe branch) -->
+        <path id="wireGuardrailSupervisor" class="wire-path" d="M 516 238 L 552 238" />
+
+        <!-- 4. Supervisor -> Fallback (Small talk branch) -->
+        <path id="wireSupervisorFallback" class="wire-path" d="M 672 170 L 672 140" />
+
+        <!-- 5. Supervisor -> Kafka (Purchase branch) -->
+        <path id="wireSupervisorKafka" class="wire-path" d="M 792 238 L 828 238" />
+
+        <!-- 6. Kafka -> Worker Especialista -->
+        <path id="wireKafkaWorker" class="wire-path" d="M 948 308 L 948 338" />
+
+        <!-- 7. Worker -> LLM Judge -->
+        <path id="wireWorkerJudge" class="wire-path" d="M 828 408 L 792 408" />
+
+        <!-- 8. Judge -> Observability / DB -->
+        <path id="wireJudgeObservability" class="wire-path" d="M 552 408 L 516 408" />
+      </svg>
+
+      <!-- Node Grid Matrix -->
+      <div class="nodes-grid">
+      
+      <!-- Node: Client -->
+      <div class="glass map-node" id="nodeClient" onclick="openNodeDetail('client')">
+        <div class="node-top">
+          <div class="node-icon-bubble" style="color: var(--cyan); background: rgba(56, 189, 248, 0.1);">🌐</div>
+          <div class="node-layer-tag">Entrada</div>
+        </div>
+        <div class="node-name">1. Cliente / Swagger</div>
+        <div class="node-desc-preview">Envia texto livre em linguagem natural sem precisar escolher intent manual.</div>
+      </div>
+
+      <!-- Node: Security Guardrail -->
+      <div class="glass map-node" id="nodeGuardrail" onclick="openNodeDetail('guardrail')">
+        <div class="node-top">
+          <div class="node-icon-bubble" style="color: var(--rose); background: rgba(251, 113, 133, 0.1);">🛡️</div>
+          <div class="node-layer-tag">Zero-Trust</div>
+        </div>
+        <div class="node-name">2. Guardrail Defensivo</div>
+        <div class="node-desc-preview">Audita ataques de Prompt Injection e Jailbreak antes de qualquer custo.</div>
+      </div>
+
+      <!-- Node: Security Block -->
+      <div class="glass map-node" id="nodeBlock" onclick="openNodeDetail('block')">
+        <div class="node-top">
+          <div class="node-icon-bubble" style="color: var(--rose); background: rgba(251, 113, 133, 0.1);">⛔</div>
+          <div class="node-layer-tag">Defesa</div>
+        </div>
+        <div class="node-name">Corte de Ameaça</div>
+        <div class="node-desc-preview">Aborta o fluxo imediatamente com justificativa e preserva as filas.</div>
+      </div>
+
+      <!-- Node: LangGraph Supervisor -->
+      <div class="glass map-node" id="nodeSupervisor" onclick="openNodeDetail('supervisor')">
+        <div class="node-top">
+          <div class="node-icon-bubble" style="color: var(--purple); background: rgba(192, 132, 252, 0.1);">🧠</div>
+          <div class="node-layer-tag">LangGraph</div>
+        </div>
+        <div class="node-name">3. Supervisor Central</div>
+        <div class="node-desc-preview">Executa raciocínio (Thinking), extrai entidades e roteia via StateGraph.</div>
+      </div>
+
+      <!-- Node: Fallback Chat -->
+      <div class="glass map-node" id="nodeFallback" onclick="openNodeDetail('fallback')">
+        <div class="node-top">
+          <div class="node-icon-bubble" style="color: var(--amber); background: rgba(251, 191, 36, 0.1);">💬</div>
+          <div class="node-layer-tag">Direto</div>
+        </div>
+        <div class="node-name">Resposta Imediata</div>
+        <div class="node-desc-preview">Trata saudações e dúvidas sem onerar workers especialistas.</div>
+      </div>
+
+      <!-- Node: Kafka Broker -->
+      <div class="glass map-node" id="nodeKafka" onclick="openNodeDetail('kafka')">
+        <div class="node-top">
+          <div class="node-icon-bubble" style="color: var(--amber); background: rgba(251, 191, 36, 0.1);">⚡</div>
+          <div class="node-layer-tag">Porta 9092</div>
+        </div>
+        <div class="node-name">4. Apache Kafka KRaft</div>
+        <div class="node-desc-preview">Buffer assíncrono que absorve picos massivos de tráfego sem lentidão.</div>
+      </div>
+
+      <!-- Node: Worker Especialista -->
+      <div class="glass map-node" id="nodeWorker" onclick="openNodeDetail('worker')">
+        <div class="node-top">
+          <div class="node-icon-bubble" style="color: var(--emerald); background: rgba(52, 211, 153, 0.1);">🔍</div>
+          <div class="node-layer-tag">Qdrant RAG</div>
+        </div>
+        <div class="node-name">5. Especialista Comercial</div>
+        <div class="node-desc-preview">Busca vetorial ultra rápida no catálogo e geração GPT-4o fundamentada.</div>
+      </div>
+
+      <!-- Node: LLM Judge -->
+      <div class="glass map-node" id="nodeJudge" onclick="openNodeDetail('judge')">
+        <div class="node-top">
+          <div class="node-icon-bubble" style="color: var(--blue); background: rgba(96, 165, 250, 0.1);">⚖️</div>
+          <div class="node-layer-tag">Auditoria</div>
+        </div>
+        <div class="node-name">6. LLM-as-a-Judge</div>
+        <div class="node-desc-preview">Segundo modelo avalia a veracidade e bloqueia alucinações (PASS/FAIL).</div>
+      </div>
+
+      <!-- Node: Observability & DB -->
+      <div class="glass map-node" id="nodeObservability" onclick="openNodeDetail('observability')">
+        <div class="node-top">
+          <div class="node-icon-bubble" style="color: var(--purple); background: rgba(192, 132, 252, 0.1);">🔭</div>
+          <div class="node-layer-tag">Langfuse v2</div>
+        </div>
+        <div class="node-name">7. Governança & Postgres</div>
+        <div class="node-desc-preview">Gravação relacional da tarefa e telemetria completa de custos e tokens.</div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+  <!-- Detail Drawer (Frosted Slide-in Explainer) -->
+  <div class="detail-drawer" id="detailDrawer">
+    <div class="drawer-header">
+      <div class="drawer-title-group">
+        <div class="drawer-badge" id="drawerBadge">ETAPA ARQUITETURAL</div>
+        <h2 class="drawer-title" id="drawerTitle">Nome do Componente</h2>
+      </div>
+      <div class="close-btn" onclick="closeDrawer()">✕</div>
+    </div>
+
+    <!-- Section: Business Value -->
+    <div class="section-block">
+      <div class="section-label">🎯 Valor Estratégico de Negócio</div>
+      <div class="section-text" id="drawerBusiness">Texto explicativo focado nos ganhos para o cliente.</div>
+    </div>
+
+    <!-- Metrics -->
+    <div class="metric-row">
+      <div class="metric-card">
+        <div class="metric-title" id="metricLabel1">TECNOLOGIA</div>
+        <div class="metric-val" id="metricVal1">Docker / Python</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-title" id="metricLabel2">SLA / SEGURANÇA</div>
+        <div class="metric-val" id="metricVal2">< 50ms</div>
+      </div>
+    </div>
+
+    <!-- Section: Technical Payload in Production -->
+    <div class="section-block">
+      <div class="section-label">⚡ Payload & Código em Produção</div>
+      <div class="code-glass" id="drawerCode">// Código ou JSON real do nó</div>
+    </div>
+
+    <!-- Section: What Happens Next -->
+    <div class="section-block">
+      <div class="section-label">🔄 Próximo Elo na Cadeia</div>
+      <div class="section-text" id="drawerNext">O que acontece quando este nó conclui a execução.</div>
+    </div>
+  </div>
+
+  <!-- Bottom Presentation Tour Bar -->
+  <div class="glass presentation-bar" id="tourBar">
+    <div class="tour-controls-row">
+      <button class="playback-btn" onclick="prevTourStep()">◀ Anterior</button>
+      <button class="playback-btn" id="playBtn" onclick="toggleAutoTour()">▶ Auto Play (3.5s)</button>
+      <div class="tour-counter" id="tourCounter">Passo 1 de 7: Cliente & Gateway</div>
+      <button class="playback-btn" onclick="nextTourStep()">Próximo Passo ▶</button>
+    </div>
+    <div class="tour-progress-track">
+      <div class="tour-progress-fill" id="tourProgressFill"></div>
+    </div>
+  </div>
+
+  <script>
+    // Complete Node Information Database for Customer Pitch
+    const nodeDetails = {
+      client: {
+        badge: "CAMADA 01 • INGESTÃO",
+        badgeBg: "rgba(56, 189, 248, 0.15)",
+        badgeColor: "#38bdf8",
+        title: "Interface & API Gateway",
+        business: "Permite que clientes e aplicações parceiras enviem pedidos em linguagem natural pura (ex: 'Quero comprar uma geladeira inox urgente'). O sistema não exige preenchimento burocrático de formulários nem seleção manual de categorias.",
+        metric1Label: "PROTOCOLO", metric1Val: "REST HTTP/FastAPI",
+        metric2Label: "PORTA PÚBLICA", metric2Val: "8001 / Swagger",
+        code: `POST /orchestrate HTTP/1.1\nContent-Type: multipart/form-data\n\nquery="Estou precisando de uma geladeira urgente"`,
+        next: "A mensagem bruta é despachada imediatamente para o Guardrail de Segurança Ativa para validação de integridade."
+      },
+      guardrail: {
+        badge: "CAMADA 02 • SEGURANÇA DEFENSIVA",
+        badgeBg: "rgba(251, 113, 133, 0.15)",
+        badgeColor: "#fb7185",
+        title: "Guardrail contra Prompt Injection",
+        business: "Garante imunidade total contra manipulações adversariais, jailbreaks (tentativas de burlar regras) e ataques de extração de segredos empresariais. Protege a reputação da sua marca e impede faturas abusivas de LLM geradas por ataques maliciosos.",
+        metric1Label: "DEFESA", metric1Val: "Zero-Trust Active",
+        metric2Label: "LATÊNCIA", metric2Val: "Zero Custo Residual",
+        code: `class SecurityEvaluation(BaseModel):\n  is_safe: bool = True\n  reasoning: "Nenhuma tentativa de bypass"\n  threat_category: "none"`,
+        next: "Se for seguro, avança para o Supervisor LangGraph. Se for malicioso, o nó de corte (Security Block) aborta tudo."
+      },
+      block: {
+        badge: "MECANISMO DE CORTE",
+        badgeBg: "rgba(251, 113, 133, 0.2)",
+        badgeColor: "#fb7185",
+        title: "Nó de Corte Imediato",
+        business: "Quando uma injeção de prompt é detectada, a execução é interrompida a frio. Os modelos de negócios caros e as filas do Kafka nunca são tocados, protegendo a infraestrutura contra negação de serviço e vazamento de chaves.",
+        metric1Label: "STATUS HTTP", metric1Val: "200 (Blocked)",
+        metric2Label: "ECONOMIA", metric2Val: "100% de Tokens",
+        code: `{\n  "status": "blocked",\n  "intent": "security_violation",\n  "reason": "Tentativa de prompt injection detectada"\n}`,
+        next: "Fim de execução seguro (END). O usuário recebe resposta educada de bloqueio."
+      },
+      supervisor: {
+        badge: "CAMADA 03 • ORQUESTRADOR COGNITIVO",
+        badgeBg: "rgba(192, 132, 252, 0.15)",
+        badgeColor: "#c084fc",
+        title: "LangGraph Supervisor & Thinking",
+        business: "Substitui regras estáticas de software por raciocínio cognitivo real. O Supervisor documenta o 'Thinking' da decisão, extrai entidades fundamentais e escolhe autonomamente qual departamento da empresa deve atender o cliente.",
+        metric1Label: "FRAMEWORK", metric1Val: "LangGraph StateGraph",
+        metric2Label: "RACIOCÍNIO", metric2Val: "Structured Thinking",
+        code: `🤔 Raciocínio: O cliente busca um eletrodoméstico.\n🎯 Intenção: RECOMMEND\n📦 Entidade extraída: {"produto": "geladeira"}`,
+        next: "Roteia condicionalmente: se for compra, despacha para o Kafka; se for dúvida simples, responde direto."
+      },
+      fallback: {
+        badge: "CAMADA CONVERSACIONAL",
+        badgeBg: "rgba(251, 191, 36, 0.15)",
+        badgeColor: "#fbbf24",
+        title: "Atendimento Conversacional Direto",
+        business: "Para saudações casuais ('Olá, bom dia') ou dúvidas gerais, o Supervisor responde no mesmo milissegundo sem envolver bancos vetoriais nem enfileiramento pesado, garantindo fluidez e economia de infraestrutura.",
+        metric1Label: "TEMPO DE RESPOSTA", metric1Val: "< 300ms",
+        metric2Label: "RECURSOS", metric2Val: "Zero Fila",
+        code: `{\n  "status": "success",\n  "intent": "small_talk",\n  "message": "Olá! Sou a IA Orquestradora. Como posso ajudar?"\n}`,
+        next: "Fim de execução (END). O cliente recebe a resposta amigável sem sobrecarga."
+      },
+      kafka: {
+        badge: "CAMADA 04 • BARRAMENTO EVENT-DRIVEN",
+        badgeBg: "rgba(251, 191, 36, 0.15)",
+        badgeColor: "#fbbf24",
+        title: "Apache Kafka Broker (KRaft)",
+        business: "Arquitetura desacoplada de alto rendimento. O cliente recebe confirmação instantânea da tarefa (Task ID) e a carga pesada é enfileirada. Se entrarem 50.000 requisições simultâneas durante a Black Friday, a fila absorve sem queda do sistema.",
+        metric1Label: "MODO KAFKA", metric1Val: "KRaft (Sem Zookeeper)",
+        metric2Label: "TÓPICO ATIVO", metric2Val: "product_tasks",
+        code: `publish_task("product_tasks", {\n  "task_id": "d6667237-...",\n  "query": "geladeira urgente",\n  "intent": "recommend"\n})`,
+        next: "O Especialista Comercial conectado ao tópico consome a tarefa de forma assíncrona."
+      },
+      worker: {
+        badge: "CAMADA 05 • AGENTE ESPECIALISTA",
+        badgeBg: "rgba(52, 211, 153, 0.15)",
+        badgeColor: "#34d399",
+        title: "Worker RAG & Qdrant Vector DB",
+        business: "Container isolado e escalável horizontalmente. Converte a busca em vetores semânticos e localiza produtos no Qdrant com base em similaridade contextual, alimentando o GPT-4o apenas com dados reais de catálogo da sua empresa.",
+        metric1Label: "VECTOR DB", metric1Val: "Qdrant (Porta 6333)",
+        metric2Label: "MODELO", metric2Val: "GPT-4o via LiteLLM",
+        code: `vector = embeddings.embed_query(query)\nprods = search_similar_products(vector)\nresponse = chain.invoke({"produtos": prods, "query": query})`,
+        next: "A resposta gerada segue imediatamente para a mesa de auditoria do LLM Juiz."
+      },
+      judge: {
+        badge: "CAMADA 06 • AUDITORIA ANTI-ALUCINAÇÃO",
+        badgeBg: "rgba(96, 165, 250, 0.15)",
+        badgeColor: "#60a5fa",
+        title: "Auditor Autônomo LLM-as-a-Judge",
+        business: "Nenhuma recomendação chega ao cliente final sem validação de veracidade. O modelo Juiz atua como compliance automático: confere se a resposta não inventou preços ou itens inexistentes, emitindo carimbo PASS ou FAIL.",
+        metric1Label: "METODOLOGIA", metric1Val: "LLM-as-a-Judge",
+        metric2Label: "COMPLIANCE", metric2Val: "100% Anti-Alucinação",
+        code: `[Judge Prompt] A resposta inventou produto ou preço fora da base?\n[Judge Result] PASS\n[Ação] Aprovado para persistência.`,
+        next: "Grava o resultado final no banco de dados e despacha telemetria de auditoria."
+      },
+      observability: {
+        badge: "CAMADA 07 • GOVERNANÇA & LLMOPS",
+        badgeBg: "rgba(192, 132, 252, 0.15)",
+        badgeColor: "#c084fc",
+        title: "Observabilidade Langfuse v2 & PostgreSQL",
+        business: "Transparência corporativa completa. Fornece ao comitê de tecnologia dashboards de custo exato em dólares por requisição, latência de cada modelo, árvores de raciocínio e histórico perpétuo de dados no banco relacional PostgreSQL.",
+        metric1Label: "TELEMETRIA", metric1Val: "Langfuse (Porta 3000)",
+        metric2Label: "PERSISTÊNCIA", metric2Val: "PostgreSQL (ai_db)",
+        code: `langfuse_handler.flush()\n# Grava no Postgres:\nINSERT INTO task_results (task_id, result, status) VALUES (...)`,
+        next: "Ciclo ponta a ponta finalizado com conformidade, governança e excelência auditada!"
+      }
+    };
+
+    const tourSteps = [
+      { id: 'client', wire: 'wireClientGuardrail' },
+      { id: 'guardrail', wire: 'wireGuardrailSupervisor' },
+      { id: 'supervisor', wire: 'wireSupervisorKafka' },
+      { id: 'kafka', wire: 'wireKafkaWorker' },
+      { id: 'worker', wire: 'wireWorkerJudge' },
+      { id: 'judge', wire: 'wireJudgeObservability' },
+      { id: 'observability', wire: null }
+    ];
+
+    let currentTourIdx = 0;
+
+    function openNodeDetail(key) {
+      const data = nodeDetails[key];
+      if (!data) return;
+
+      // Update Node Highlight
+      document.querySelectorAll('.map-node').forEach(n => {
+        n.classList.remove('selected-node', 'selected-danger');
+      });
+
+      const nodeEl = document.getElementById(
+        key === 'client' ? 'nodeClient' :
+        key === 'guardrail' ? 'nodeGuardrail' :
+        key === 'block' ? 'nodeBlock' :
+        key === 'supervisor' ? 'nodeSupervisor' :
+        key === 'fallback' ? 'nodeFallback' :
+        key === 'kafka' ? 'nodeKafka' :
+        key === 'worker' ? 'nodeWorker' :
+        key === 'judge' ? 'nodeJudge' : 'nodeObservability'
+      );
+
+      if (nodeEl) {
+        nodeEl.classList.add(key === 'block' ? 'selected-danger' : 'selected-node');
+      }
+
+      // Populate Drawer
+      const badge = document.getElementById('drawerBadge');
+      badge.textContent = data.badge;
+      badge.style.background = data.badgeBg;
+      badge.style.color = data.badgeColor;
+
+      document.getElementById('drawerTitle').textContent = data.title;
+      document.getElementById('drawerBusiness').textContent = data.business;
+      document.getElementById('metricLabel1').textContent = data.metric1Label;
+      document.getElementById('metricVal1').textContent = data.metric1Val;
+      document.getElementById('metricLabel2').textContent = data.metric2Label;
+      document.getElementById('metricVal2').textContent = data.metric2Val;
+      document.getElementById('drawerCode').textContent = data.code;
+      document.getElementById('drawerNext').textContent = data.next;
+
+      // Open Drawer with smooth glass slide-in
+      document.getElementById('detailDrawer').classList.add('open');
+
+      // Shift map stage to the left so drawer never overlaps nodes 4 and 5
+      const mapStage = document.getElementById('mapStage');
+      if (mapStage) mapStage.classList.add('shifted');
+    }
+
+    function closeDrawer() {
+      document.getElementById('detailDrawer').classList.remove('open');
+      const mapStage = document.getElementById('mapStage');
+      if (mapStage) mapStage.classList.remove('shifted');
+
+      document.querySelectorAll('.map-node').forEach(n => {
+        n.classList.remove('selected-node', 'selected-danger');
+      });
+    }
+
+    // Guided Tour Controller with Configurable Delay & Progress Bar
+    const STEP_DURATION_MS = 3800; // 3.8 segundos para dar tempo de leitura confortável
+    let isAutoTourRunning = false;
+    let tourTimer = null;
+    let progressTimer = null;
+    let progressStartTime = 0;
+
+    function startGuidedTour() {
+      currentTourIdx = 0;
+      updateTourStep();
+      startAutoPlay();
+    }
+
+    function toggleAutoTour() {
+      if (isAutoTourRunning) {
+        stopAutoPlay();
+      } else {
+        startAutoPlay();
+      }
+    }
+
+    function startAutoPlay() {
+      isAutoTourRunning = true;
+      const btn = document.getElementById('playBtn');
+      if (btn) {
+        btn.textContent = '⏸ Pausar';
+        btn.classList.add('active-play');
+      }
+      runStepWithDelay();
+    }
+
+    function stopAutoPlay() {
+      isAutoTourRunning = false;
+      const btn = document.getElementById('playBtn');
+      if (btn) {
+        btn.textContent = '▶ Auto Play';
+        btn.classList.remove('active-play');
+      }
+      clearTimeout(tourTimer);
+      clearInterval(progressTimer);
+      resetProgressBar();
+    }
+
+    function resetProgressBar() {
+      const fill = document.getElementById('tourProgressFill');
+      if (fill) fill.style.width = '0%';
+    }
+
+    function runStepWithDelay() {
+      if (!isAutoTourRunning) return;
+      
+      resetProgressBar();
+      progressStartTime = Date.now();
+      
+      // Animate Progress Bar
+      clearInterval(progressTimer);
+      progressTimer = setInterval(() => {
+        if (!isAutoTourRunning) {
+          clearInterval(progressTimer);
+          return;
+        }
+        const elapsed = Date.now() - progressStartTime;
+        const pct = Math.min((elapsed / STEP_DURATION_MS) * 100, 100);
+        const fill = document.getElementById('tourProgressFill');
+        if (fill) fill.style.width = pct + '%';
+      }, 50);
+
+      // Trigger next step after duration
+      clearTimeout(tourTimer);
+      tourTimer = setTimeout(() => {
+        if (!isAutoTourRunning) return;
+        currentTourIdx = (currentTourIdx + 1) % tourSteps.length;
+        updateTourStep();
+        runStepWithDelay();
+      }, STEP_DURATION_MS);
+    }
+
+    function updateTourStep() {
+      const step = tourSteps[currentTourIdx];
+      openNodeDetail(step.id);
+
+      // Light up wire
+      document.querySelectorAll('.wire-path').forEach(w => w.classList.remove('wire-active', 'wire-danger'));
+      if (step.wire) {
+        const wireEl = document.getElementById(step.wire);
+        if (wireEl) wireEl.classList.add('wire-active');
+      }
+
+      document.getElementById('tourCounter').textContent = 
+        `Passo ${currentTourIdx + 1} de ${tourSteps.length}: ${nodeDetails[step.id].title}`;
+    }
+
+    function nextTourStep() {
+      stopAutoPlay();
+      currentTourIdx = (currentTourIdx + 1) % tourSteps.length;
+      updateTourStep();
+    }
+
+    function prevTourStep() {
+      stopAutoPlay();
+      currentTourIdx = (currentTourIdx - 1 + tourSteps.length) % tourSteps.length;
+      updateTourStep();
+    }
+
+    // Live Scenario Pulse Simulator with Cinematic Delays
+    function triggerSimulation(type) {
+      stopAutoPlay();
+      document.querySelectorAll('.wire-path').forEach(w => w.classList.remove('wire-active', 'wire-danger'));
+
+      if (type === 'attack') {
+        // Passo 1: Disparo do cliente (0s)
+        openNodeDetail('client');
+        document.getElementById('wireClientGuardrail').classList.add('wire-danger');
+
+        // Passo 2: Análise defensiva no Guardrail (após 2.4 segundos)
+        setTimeout(() => {
+          openNodeDetail('guardrail');
+          document.getElementById('wireGuardrailBlock').classList.add('wire-danger');
+        }, 2400);
+
+        // Passo 3: Corte e isolamento no Bloco de Segurança (após 5.0 segundos)
+        setTimeout(() => {
+          openNodeDetail('block');
+        }, 5000);
+
+      } else if (type === 'purchase') {
+        let i = 0;
+        const SIM_DELAY_MS = 3400; // 3.4 segundos entre cada nó para leitura tranquila
+        function runStep() {
+          if (i >= tourSteps.length) return;
+          currentTourIdx = i;
+          updateTourStep();
+          i++;
+          setTimeout(runStep, SIM_DELAY_MS);
+        }
+        runStep();
+      }
+    }
+
+    // Initial state: select first node
+    openNodeDetail('client');
+  </script>
+</body>
+</html>

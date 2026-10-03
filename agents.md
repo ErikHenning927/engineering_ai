@@ -156,6 +156,10 @@ http://localhost:3000
 
 # Documentação Interativa Swagger da API:
 http://localhost:8001/docs
+
+# Frontend de Demonstração Comercial & Slides (Glassmorphism):
+Abra o arquivo demo/index.html diretamente no navegador ou rode:
+python3 -m http.server 8080 --directory demo/
 ```
 
 ---
