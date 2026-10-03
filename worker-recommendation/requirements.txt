@@ -1,0 +1,5 @@
+confluent-kafka
+qdrant-client
+langchain-openai
+langchain-core
+python-dotenv

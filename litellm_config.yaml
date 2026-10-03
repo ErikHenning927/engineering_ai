@@ -1,0 +1,15 @@
+model_list:
+  # Modelo Principal (OpenAI)
+  - model_name: gpt-4o
+    litellm_params:
+      model: openai/gpt-4o
+      api_key: os.environ/OPENAI_API_KEY
+      
+  # Modelo Juiz (Trocado para gpt-4o-mini da OpenAI)
+  - model_name: gemini-flash # Mantivemos o nome do alias apenas para não ter que mudar o código do Worker
+    litellm_params:
+      model: openai/gpt-3.5-turbo
+      api_key: os.environ/OPENAI_API_KEY
+
+litellm_settings:
+  drop_params: true
