@@ -1,27 +1,12 @@
-import uuid
 from fastapi import APIRouter, Form
-from app.services.kafka_producer import publish_task
-from app.core.config import PRODUCT_TOPIC
+from app.agent.orchestrator import process_with_langgraph
 
 router = APIRouter()
 
 @router.post("/orchestrate")
-async def orchestrate(intent: str = Form(...), query: str = Form(None)):
-    task_id = str(uuid.uuid4())
+async def orchestrate(query: str = Form(...)):
+    # Agora o orquestrador não recebe mais um "intent" manual!
+    # O usuário envia apenas a 'query', e o LangGraph resolve todo o resto.
+    result = process_with_langgraph(query)
     
-    if intent == "recommend":
-        task_data = {
-            "task_id": task_id,
-            "query": query,
-            "intent": intent
-        }
-        # Apenas publica na fila e libera a conexão HTTP imediatamente
-        publish_task(PRODUCT_TOPIC, task_data)
-        
-        return {
-            "status": "processing",
-            "task_id": task_id,
-            "message": "Tarefa enviada para a fila do Agente de Recomendação."
-        }
-    
-    return {"status": "error", "message": "Intenção não suportada."}
+    return result

@@ -1,5 +1,9 @@
 fastapi
 uvicorn
-python-multipart
 confluent-kafka
 python-dotenv
+pydantic
+python-multipart
+langgraph
+langchain
+langchain-openai

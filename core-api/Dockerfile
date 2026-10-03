@@ -6,8 +6,9 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y build-essential curl
 
 # Copiar requirements se houver, ou instalar pacotes diretamente
-# (Como não criamos requirements.txt fixo, instalamos os essenciais)
-RUN pip install --no-cache-dir fastapi uvicorn confluent-kafka python-dotenv pydantic python-multipart
+# Copiar o requirements.txt e instalar
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . /app
 
