@@ -1,5 +1,6 @@
 fastapi
 uvicorn
+aiokafka
 confluent-kafka
 python-dotenv
 pydantic
@@ -7,3 +8,5 @@ python-multipart
 langgraph
 langchain
 langchain-openai
+sqlalchemy
+psycopg2-binary

@@ -84,30 +84,63 @@ services:
   # ----------------------------------------
   api_gateway:
     build:
-      context: ./core-api
+      context: .
+      dockerfile: core-api/Dockerfile
     container_name: api_gateway
     ports:
       - "8001:8001"
     environment:
       - KAFKA_BROKER=kafka:9092
       - LITELLM_URL=http://litellm:4000
+      - POSTGRES_URL=postgresql+psycopg2://ai_user:ai_password@postgres:5432/ai_db
+      - PYTHONPATH=/app:/packages
     volumes:
       - ./core-api:/app
+      - ./packages/ai_common:/packages/ai_common
     depends_on:
       - kafka
+      - postgres
     env_file:
       - .env
 
   worker_recommendation:
     build:
-      context: ./worker-recommendation
+      context: .
+      dockerfile: worker-recommendation/Dockerfile
     container_name: worker_recommendation
+    volumes:
+      - ./worker-recommendation:/app
+      - ./packages/ai_common:/packages/ai_common
     environment:
       - KAFKA_BROKER=kafka:9092
       - POSTGRES_URL=postgresql+psycopg2://ai_user:ai_password@postgres:5432/ai_db
       - QDRANT_URL=http://qdrant:6333
       - LITELLM_URL=http://litellm:4000
       - LANGFUSE_HOST=http://langfuse:3000
+      - PYTHONPATH=/app:/packages
+    depends_on:
+      - kafka
+      - postgres
+      - qdrant
+      - litellm
+    env_file:
+      - .env
+
+  worker_assistant:
+    build:
+      context: .
+      dockerfile: worker-assistant/Dockerfile
+    container_name: worker_assistant
+    volumes:
+      - ./worker-assistant:/app
+      - ./packages/ai_common:/packages/ai_common
+    environment:
+      - KAFKA_BROKER=kafka:9092
+      - POSTGRES_URL=postgresql+psycopg2://ai_user:ai_password@postgres:5432/ai_db
+      - QDRANT_URL=http://qdrant:6333
+      - LITELLM_URL=http://litellm:4000
+      - LANGFUSE_HOST=http://langfuse:3000
+      - PYTHONPATH=/app:/packages
     depends_on:
       - kafka
       - postgres

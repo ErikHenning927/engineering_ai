@@ -1,7 +1,7 @@
 from langchain_openai import OpenAIEmbeddings, ChatOpenAI
 from langchain_core.prompts import PromptTemplate
-from app.core.config import OPENAI_API_KEY
-from app.db.qdrant_client import search_similar_products
+from app.core.config import OPENAI_API_KEY, QDRANT_URL
+from ai_common.qdrant import search_similar_vectors
 
 import os
 
@@ -48,7 +48,7 @@ def process_recommendation(query: str, task_id: str = "unknown"):
     print(f"[Agente] Iniciando busca vetorial para: '{query}'")
     vector = embeddings.embed_query(query)
     
-    recommendations = search_similar_products(vector)
+    recommendations = search_similar_vectors(QDRANT_URL, "products", vector, limit=2)
     
     if not recommendations:
         return "Nenhum produto encontrado na base."
