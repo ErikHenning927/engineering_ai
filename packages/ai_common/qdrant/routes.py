@@ -45,13 +45,17 @@ ROUTE_PROTOTYPES: List[Dict[str, Any]] = [
 
 def ensure_routes_collection(q_client: QdrantClient):
     """Garante que a coleção de rotas exista no Qdrant."""
-    collections = [c.name for c in q_client.get_collections().collections]
-    if ROUTES_COLLECTION not in collections:
-        logger.info(f"📦 Criando coleção de rotas '{ROUTES_COLLECTION}' no Qdrant...")
-        q_client.create_collection(
-            collection_name=ROUTES_COLLECTION,
-            vectors_config=qmodels.VectorParams(size=1536, distance=qmodels.Distance.COSINE),
-        )
+    try:
+        collections = [c.name for c in q_client.get_collections().collections]
+        if ROUTES_COLLECTION not in collections:
+            logger.info(f"📦 Criando coleção de rotas '{ROUTES_COLLECTION}' no Qdrant...")
+            q_client.create_collection(
+                collection_name=ROUTES_COLLECTION,
+                vectors_config=qmodels.VectorParams(size=1536, distance=qmodels.Distance.COSINE),
+            )
+    except Exception as e:
+        logger.warning(f"Aviso ao verificar coleções de rotas no Qdrant: {e}")
+
 
 def seed_routes(qdrant_url: str, openai_api_key: str):
     """Popula os vetores das rotas no Qdrant."""

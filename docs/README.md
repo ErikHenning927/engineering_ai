@@ -243,3 +243,21 @@ curl -X POST http://localhost:8001/orchestrate \
 ```
 **Resultado no Polling:** O worker assistente tenta tratar, o Juiz detecta fuga de escopo/alucinação (`FAIL`) e retorna:
 > *"Desculpe, nossa auditoria automática identificou uma inconsistência com a base de suporte. Por favor, reformule sua solicitação."*
+
+---
+
+## 🧪 9. Execução da Suíte de Testes Automatizados (Pytest)
+
+A plataforma possui uma suíte completa de testes unitários e de integração cobrindo banco de dados, imunidade a SQL Injection, roteamento vetorial no Qdrant, LLM-as-a-Judge, mensageria Kafka (DLQ/Retries) e rotas da API.
+
+```bash
+# Executar todos os 17 testes automatizados dentro do contêiner:
+docker exec -e PYTHONPATH=/app:/packages api_gateway pytest -v -c /pytest.ini /tests
+
+# Executar apenas os testes unitários:
+docker exec -e PYTHONPATH=/app:/packages api_gateway pytest -v /tests/unit
+
+# Executar apenas os testes de integração da API:
+docker exec -e PYTHONPATH=/app:/packages api_gateway pytest -v /tests/integration
+```
+

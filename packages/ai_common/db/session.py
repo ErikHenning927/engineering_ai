@@ -11,13 +11,13 @@ logger = logging.getLogger("ai_common.db")
 
 POSTGRES_URL = os.getenv("POSTGRES_URL", "postgresql+psycopg2://ai_user:ai_password@127.0.0.1:5432/ai_db")
 
-engine = create_engine(
-    POSTGRES_URL, 
-    pool_pre_ping=True, 
-    pool_size=10, 
-    max_overflow=20
-)
+engine_kwargs = {"pool_pre_ping": True}
+if not POSTGRES_URL.startswith("sqlite"):
+    engine_kwargs.update({"pool_size": 10, "max_overflow": 20})
+
+engine = create_engine(POSTGRES_URL, **engine_kwargs)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
 
 def get_db():
     """FastAPI Dependency para injeção de sessão de banco."""

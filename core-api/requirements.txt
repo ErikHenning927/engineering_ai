@@ -11,3 +11,8 @@ langchain-openai
 sqlalchemy
 psycopg2-binary
 qdrant-client
+pytest
+pytest-asyncio
+pytest-mock
+httpx
+

@@ -98,6 +98,9 @@ services:
     volumes:
       - ./core-api:/app
       - ./packages/ai_common:/packages/ai_common
+      - ./tests:/tests
+      - ./pytest.ini:/pytest.ini
+
     depends_on:
       - kafka
       - postgres
