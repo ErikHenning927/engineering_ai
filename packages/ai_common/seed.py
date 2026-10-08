@@ -211,11 +211,16 @@ def seed_all():
                 )
             ]
         )
-        print(f"🎯 Vetorizado no Qdrant ['{SUPPORT_COLLECTION}']: Ticket {ticket['ticket_number']}")
-
     session.close()
+
+    # 5. Seed de Rotas Semânticas do Orquestrador (Qdrant routes_index)
+    print("\n--- 🧠 Populando Índice Vetorial de Roteamento Semântico ---")
+    from ai_common.qdrant.routes import seed_routes
+    seed_routes(QDRANT_URL, OPENAI_API_KEY)
+
     print("\n✅ Seed Completo Concluído com Sucesso!")
     print("==================================================")
 
 if __name__ == "__main__":
     seed_all()
+

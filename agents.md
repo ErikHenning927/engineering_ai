@@ -54,13 +54,15 @@ A solução adota o padrão **Supervisor + Especialistas Desacoplados (Worker Ag
 
 | Contêiner | Tecnologia | Porta | Função Principal |
 | :--- | :--- | :--- | :--- |
-| `api_gateway` | FastAPI + LangGraph | `8001` | Gateway HTTP, Guardrail defensivo contra Prompt Injection e Orquestrador semântico. |
+| `api_gateway` | FastAPI + LangGraph | `8001` | Gateway HTTP, Guardrail defensivo (`gpt-4o-mini`) e Roteador Semântico Vetorial via Qdrant. |
 | `worker_recommendation` | Python + LangChain | - | Consumidor Kafka especialista em busca vetorial e recomendações com LLM-as-a-Judge. |
+| `worker_assistant` | Python + LangChain | - | Consumidor Kafka especialista em suporte técnico, garantia e resolução de tickets. |
 | `kafka_broker` | Apache Kafka (KRaft) | `9092` | Mensageria assíncrona tolerante a falhas (sem dependência de Zookeeper). |
 | `litellm_proxy` | LiteLLM Proxy | `4000` | Gateway centralizador de chamadas a LLMs (balanceamento, fallbacks e rate limits). |
-| `qdrant` | Qdrant Vector DB | `6333` | Banco de dados vetorial para busca semântica de produtos (embeddings). |
+| `qdrant` | Qdrant Vector DB | `6333` | Banco de dados vetorial para rotas semânticas (`routes_index`), produtos e suporte. |
 | `postgres_db` | PostgreSQL 16 | `5432` | Persistência de resultados das tarefas (`ai_db`) e backend de dados do Langfuse (`postgres`). |
 | `langfuse` | Langfuse v2 | `3000` | Plataforma de observabilidade, métricas e rastreamento de traces de IA (LLMOps). |
+
 
 ---
 

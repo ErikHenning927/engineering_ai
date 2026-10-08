@@ -1,14 +1,20 @@
+import json
+import logging
 from typing import Optional, List
-from fastapi import APIRouter, Form, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Request
 from sqlalchemy.orm import Session
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from datetime import datetime
 
 from app.agent.orchestrator import process_with_langgraph
 from ai_common.db.session import get_db
 from ai_common.db.models import TaskResult
 
+logger = logging.getLogger("core-api.routes")
 router = APIRouter()
+
+class OrchestrateRequest(BaseModel):
+    query: str = Field(..., description="A mensagem, pergunta ou pedido do usuário", example="Notebook Pro X")
 
 class TaskResponse(BaseModel):
     task_id: str
@@ -19,12 +25,64 @@ class TaskResponse(BaseModel):
     message: Optional[str] = None
 
 @router.post("/orchestrate")
-async def orchestrate(query: str = Form(...)):
+async def orchestrate(request: Request):
     """
     Ponto de entrada assíncrono do Orquestrador LangGraph.
-    Não bloqueia o Event Loop do FastAPI.
+    Resiliente a qualquer formato de cliente (JSON, Raw JSON String, Form, etc.).
     """
-    result = await process_with_langgraph(query)
+    query_str = None
+    
+    # 1. Tenta interpretar como JSON
+    try:
+        body_data = await request.json()
+        if isinstance(body_data, dict):
+            query_str = body_data.get("query")
+        elif isinstance(body_data, str):
+            try:
+                parsed = json.loads(body_data)
+                if isinstance(parsed, dict):
+                    query_str = parsed.get("query")
+                else:
+                    query_str = body_data
+            except Exception:
+                query_str = body_data
+    except Exception:
+        pass
+
+    # 2. Se não encontrou, tenta interpretar como Form
+    if not query_str:
+        try:
+            form = await request.form()
+            query_str = form.get("query")
+        except Exception:
+            pass
+
+    # 3. Fallback: lê os bytes brutos do corpo
+    if not query_str:
+        try:
+            raw_bytes = await request.body()
+            decoded = raw_bytes.decode('utf-8').strip()
+            if decoded:
+                if decoded.startswith("{") and decoded.endswith("}"):
+                    try:
+                        parsed = json.loads(decoded)
+                        if isinstance(parsed, dict):
+                            query_str = parsed.get("query")
+                    except Exception:
+                        pass
+                if not query_str:
+                    query_str = decoded
+        except Exception:
+            pass
+
+    if not query_str or not str(query_str).strip():
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="O campo 'query' é obrigatório no corpo da requisição (ex: {\"query\": \"Notebook Pro X\"})."
+        )
+
+    clean_query = str(query_str).strip()
+    result = await process_with_langgraph(clean_query)
     return result
 
 @router.get("/tasks/{task_id}", response_model=TaskResponse)
@@ -46,7 +104,6 @@ async def get_task_status(task_id: str, db: Session = Depends(get_db)):
             message="Tarefa processada com sucesso pelo Agente Especialista."
         )
     
-    # Se ainda não estiver no banco, a tarefa está na fila ou sendo executada pelo worker
     return TaskResponse(
         task_id=task_id,
         status="processing",

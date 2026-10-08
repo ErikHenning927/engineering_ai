@@ -93,6 +93,7 @@ services:
       - KAFKA_BROKER=kafka:9092
       - LITELLM_URL=http://litellm:4000
       - POSTGRES_URL=postgresql+psycopg2://ai_user:ai_password@postgres:5432/ai_db
+      - QDRANT_URL=http://qdrant:6333
       - PYTHONPATH=/app:/packages
     volumes:
       - ./core-api:/app
@@ -100,6 +101,9 @@ services:
     depends_on:
       - kafka
       - postgres
+      - qdrant
+      - litellm
+
     env_file:
       - .env
 

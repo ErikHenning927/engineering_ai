@@ -13,3 +13,5 @@ RETRY_BASE_DELAY = float(os.getenv("RETRY_BASE_DELAY", "1.0"))
 
 QDRANT_URL = os.getenv("QDRANT_URL", "http://localhost:6333")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+LITELLM_URL = os.getenv("LITELLM_URL", "http://litellm:4000")
+

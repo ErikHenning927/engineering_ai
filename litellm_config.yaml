@@ -5,11 +5,18 @@ model_list:
       model: openai/gpt-4o
       api_key: os.environ/OPENAI_API_KEY
       
-  # Modelo Juiz (Trocado para gpt-4o-mini da OpenAI)
-  - model_name: gemini-flash # Mantivemos o nome do alias apenas para não ter que mudar o código do Worker
+  # Modelo Guardrail e Roteador Rápido (OpenAI GPT-4o-mini)
+  - model_name: gpt-4o-mini
     litellm_params:
-      model: openai/gpt-3.5-turbo
+      model: openai/gpt-4o-mini
+      api_key: os.environ/OPENAI_API_KEY
+
+  # Modelo Juiz (Trocado para gpt-4o-mini da OpenAI)
+  - model_name: gemini-flash
+    litellm_params:
+      model: openai/gpt-4o-mini
       api_key: os.environ/OPENAI_API_KEY
 
 litellm_settings:
   drop_params: true
+

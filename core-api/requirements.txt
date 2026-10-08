@@ -10,3 +10,4 @@ langchain
 langchain-openai
 sqlalchemy
 psycopg2-binary
+qdrant-client
