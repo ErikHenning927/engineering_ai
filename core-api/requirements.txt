@@ -15,4 +15,5 @@ pytest
 pytest-asyncio
 pytest-mock
 httpx
+alembic
 

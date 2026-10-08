@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Apresentação Executiva - Plataforma Multi-Agente de IA</title>
+  <style>
+    :root {
+      --bg: #040711;
+      --glass-base: rgba(15, 23, 42, 0.65);
+      --glass-panel: rgba(18, 26, 47, 0.85);
+      --glass-border: rgba(255, 255, 255, 0.12);
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --cyan: #38bdf8;
+      --purple: #c084fc;
+      --emerald: #34d399;
+      --rose: #fb7185;
+      --amber: #fbbf24;
+      --blue: #60a5fa;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Inter", Helvetica, Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Ambient Mesh Glows */
+    .orb {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(140px);
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.35;
+      animation: floatOrb 18s ease-in-out infinite alternate;
+    }
+    .orb-1 { width: 550px; height: 550px; background: #0284c7; top: -100px; left: -100px; }
+    .orb-2 { width: 600px; height: 600px; background: #7c3aed; bottom: -120px; right: -80px; animation-duration: 22s; }
+    .orb-3 { width: 450px; height: 450px; background: #059669; top: 40%; left: 45%; animation-duration: 16s; }
+
+    @keyframes floatOrb {
+      0% { transform: translate(0, 0) scale(1); }
+      100% { transform: translate(40px, 30px) scale(1.1); }
+    }
+
+    /* Subtle grid overlay */
+    .grid-bg {
+      position: fixed;
+      inset: 0;
+      background-size: 32px 32px;
+      background-image: 
+        linear-gradient(to right, rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .glass {
+      background: var(--glass-base);
+      backdrop-filter: blur(28px) saturate(180%);
+      -webkit-backdrop-filter: blur(28px) saturate(180%);
+      border: 1px solid var(--glass-border);
+      border-radius: 20px;
+      box-shadow: 
+        0 20px 40px -15px rgba(0, 0, 0, 0.65),
+        inset 0 1px 1px 0 rgba(255, 255, 255, 0.2),
+        inset 0 -1px 1px 0 rgba(0, 0, 0, 0.4);
+      transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    header {
+      position: relative;
+      z-index: 20;
+      padding: 16px 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(4, 7, 17, 0.7);
+      backdrop-filter: blur(20px);
+    }
+
+    .pulse-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      background: rgba(56, 189, 248, 0.12);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      color: var(--cyan);
+      box-shadow: 0 0 15px rgba(56, 189, 248, 0.2);
+    }
+
+    .btn {
+      padding: 8px 16px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+      text-decoration: none;
+      border: 1px solid var(--glass-border);
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--text-main);
+    }
+    .btn:hover {
+      background: rgba(255, 255, 255, 0.12);
+      border-color: rgba(255, 255, 255, 0.25);
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #0284c7, #2563eb);
+      border: 1px solid #60a5fa;
+      color: #ffffff;
+      box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4);
+    }
+    .btn-primary:hover {
+      background: linear-gradient(135deg, #0369a1, #1d4ed8);
+      transform: translateY(-1px);
+    }
+
+    main {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      z-index: 10;
+      padding: 24px;
+      max-width: 1200px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .slide {
+      display: none;
+      width: 100%;
+      animation: fadeIn 0.4s ease forwards;
+    }
+    .slide.active {
+      display: flex;
+      flex-direction: column;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px) scale(0.99); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+    .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+
+    @media (max-width: 900px) {
+      .grid-2, .grid-3, .grid-4 {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    footer {
+      position: relative;
+      z-index: 20;
+      padding: 12px 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(4, 7, 17, 0.85);
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+  </style>
+</head>
+<body>
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+  <div class="grid-bg"></div>
+
+  <!-- Header -->
+  <header>
+    <div style="display: flex; align-items: center; gap: 16px;">
+      <a href="index.html" class="btn" title="Voltar para o Mapa Mental Interativo">
+        🗺️ Ver Mapa Mental
+      </a>
+      <div class="pulse-badge">
+        <span>⚡ Executive AI Platform Deck</span>
+      </div>
+    </div>
+
+    <div style="display: flex; align-items: center; gap: 14px;">
+      <span id="slideIndicator" style="font-size: 13px; font-weight: 700; color: var(--cyan); background: rgba(56, 189, 248, 0.1); padding: 6px 14px; border-radius: 20px; border: 1px solid rgba(56, 189, 248, 0.3);">
+        Slide 1 / 8
+      </span>
+      <button onclick="prevSlide()" class="btn">◀ Anterior</button>
+      <button onclick="nextSlide()" class="btn btn-primary">Próximo ▶</button>
+    </div>
+  </header>
+
+  <!-- Main Slide Canvas -->
+  <main>
+
+    <!-- SLIDE 1: Capa -->
+    <div class="slide active">
+      <div class="glass" style="padding: 48px; text-align: center;">
+        <div style="display: inline-block; padding: 6px 16px; border-radius: 999px; background: rgba(56, 189, 248, 0.15); color: var(--cyan); font-size: 12px; font-weight: 700; margin-bottom: 20px; border: 1px solid rgba(56, 189, 248, 0.3);">
+          🚀 ARQUITETURA MULTI-AGENTE CORPORATIVA & GOVERNANÇA DE IA
+        </div>
+        <h1 style="font-size: 42px; font-weight: 800; line-height: 1.2; margin-bottom: 18px; background: linear-gradient(135deg, #ffffff, #94a3b8); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+          Plataforma Multi-Agente Corporativa de IA
+        </h1>
+        <p style="font-size: 17px; color: var(--text-muted); max-width: 800px; margin: 0 auto 36px; line-height: 1.6;">
+          Como transformamos um modelo experimental de chatbot em um ecossistema distribuído, com latência em sub-segundo, auditoria ativa por <strong>LLM-as-a-Judge</strong> e observabilidade ponta a ponta.
+        </p>
+
+        <div class="grid-3" style="text-align: left;">
+          <div class="glass" style="padding: 20px; border-top: 3px solid var(--cyan);">
+            <div style="font-size: 24px; margin-bottom: 8px;">⚡</div>
+            <div style="font-weight: 700; font-size: 15px; margin-bottom: 4px;">Latência < 1 Segundo</div>
+            <div style="font-size: 12px; color: var(--text-muted);">Roteamento semântico vetorial em <50ms e paralelismo no Supervisor.</div>
+          </div>
+          <div class="glass" style="padding: 20px; border-top: 3px solid var(--amber);">
+            <div style="font-size: 24px; margin-bottom: 8px;">⚖️</div>
+            <div style="font-weight: 700; font-size: 15px; margin-bottom: 4px;">Blindagem Anti-Alucinação</div>
+            <div style="font-size: 12px; color: var(--text-muted);">LLM-as-a-Judge auditando fatos em tempo real antes de entregar a resposta.</div>
+          </div>
+          <div class="glass" style="padding: 20px; border-top: 3px solid var(--emerald);">
+            <div style="font-size: 24px; margin-bottom: 8px;">🔭</div>
+            <div style="font-weight: 700; font-size: 15px; margin-bottom: 4px;">LLMOps & FinOps</div>
+            <div style="font-size: 12px; color: var(--text-muted);">Rastreamento de custos por modelo, latência p99 e scores no Langfuse.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 2: Problemas do Modelo Tradicional -->
+    <div class="slide">
+      <div class="glass" style="padding: 40px;">
+        <div style="margin-bottom: 24px;">
+          <span style="color: var(--rose); font-size: 12px; font-weight: 700; text-transform: uppercase;">O Cenário do Mercado</span>
+          <h2 style="font-size: 28px; font-weight: 800; margin-top: 4px;">Por que Chatbots Tradicionais Falham em Produção?</h2>
+        </div>
+
+        <div class="grid-2">
+          <div class="glass" style="padding: 28px; border-left: 4px solid var(--rose); background: rgba(251, 113, 133, 0.05);">
+            <h3 style="color: var(--rose); font-size: 16px; font-weight: 700; margin-bottom: 16px;">❌ Riscos do Modelo Monolítico</h3>
+            <ul style="font-size: 14px; color: var(--text-main); line-height: 1.8; list-style: none;">
+              <li>⚠️ <strong>Alucinações Críticas:</strong> Modelos inventam preços, políticas de devolução e dados sem validação.</li>
+              <li>⏳ <strong>Gargalo de Latência:</strong> Execuções síncronas demoram de 4 a 8 segundos.</li>
+              <li>🔓 <strong>Vulnerável a Prompt Injection:</strong> Usuários maliciosos burlam o sistema com jailbreaks simples.</li>
+              <li>💸 <strong>Custos Descontrolados:</strong> Nenhuma visibilidade de quanto custa cada usuário ou departamento.</li>
+            </ul>
+          </div>
+
+          <div class="glass" style="padding: 28px; border-left: 4px solid var(--emerald); background: rgba(52, 211, 153, 0.05);">
+            <h3 style="color: var(--emerald); font-size: 16px; font-weight: 700; margin-bottom: 16px;">✅ Nossa Solução Corporativa</h3>
+            <ul style="font-size: 14px; color: var(--text-main); line-height: 1.8; list-style: none;">
+              <li>🎯 <strong>Agentes Especialistas Isolados:</strong> Domínios fechados (Vendas, Suporte Técnico, etc.).</li>
+              <li>⚖️ <strong>Auditoria em Tempo Real:</strong> Juiz automático descarta e reescreve alucinações.</li>
+              <li>⚡ <strong>Arquitetura Orientada a Eventos:</strong> Apache Kafka com filas de reprocessamento (DLQ).</li>
+              <li>💰 <strong>Gateway Centralizador (LiteLLM):</strong> Balanceamento, controle orçamentário e rate limits.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 3: Topologia Supervisor + Workers -->
+    <div class="slide">
+      <div class="glass" style="padding: 40px;">
+        <div style="margin-bottom: 24px;">
+          <span style="color: var(--cyan); font-size: 12px; font-weight: 700; text-transform: uppercase;">Topologia & Engenharia</span>
+          <h2 style="font-size: 28px; font-weight: 800; margin-top: 4px;">Padrão Supervisor + Workers Especialistas</h2>
+        </div>
+
+        <div class="grid-4" style="margin-bottom: 24px;">
+          <div class="glass" style="padding: 20px; border-top: 3px solid var(--blue);">
+            <div style="font-size: 11px; font-weight: 700; color: var(--blue); text-transform: uppercase;">1. Gateway & Supervisor</div>
+            <div style="font-weight: 700; font-size: 14px; margin: 6px 0;">FastAPI + LangGraph</div>
+            <div style="font-size: 12px; color: var(--text-muted);">Executa Guardrail e Roteamento Vetorial em paralelo (~800ms).</div>
+          </div>
+
+          <div class="glass" style="padding: 20px; border-top: 3px solid var(--purple);">
+            <div style="font-size: 11px; font-weight: 700; color: var(--purple); text-transform: uppercase;">2. Mensageria KRaft</div>
+            <div style="font-weight: 700; font-size: 14px; margin: 6px 0;">Apache Kafka</div>
+            <div style="font-size: 12px; color: var(--text-muted);">Distribui tarefas para tópicos isolados com DLQ e retries.</div>
+          </div>
+
+          <div class="glass" style="padding: 20px; border-top: 3px solid var(--amber);">
+            <div style="font-size: 11px; font-weight: 700; color: var(--amber); text-transform: uppercase;">3. Agentes Workers</div>
+            <div style="font-weight: 700; font-size: 14px; margin: 6px 0;">Workers Especialistas</div>
+            <div style="font-size: 12px; color: var(--text-muted);">Busca no Qdrant + Geração GPT-4o + Auditoria pelo LLM Judge.</div>
+          </div>
+
+          <div class="glass" style="padding: 20px; border-top: 3px solid var(--emerald);">
+            <div style="font-size: 11px; font-weight: 700; color: var(--emerald); text-transform: uppercase;">4. Persistência & Ops</div>
+            <div style="font-weight: 700; font-size: 14px; margin: 6px 0;">Postgres + Langfuse</div>
+            <div style="font-size: 12px; color: var(--text-muted);">Grava status de tarefas e telemetria completa de custos e scores.</div>
+          </div>
+        </div>
+
+        <div class="glass" style="padding: 16px 24px; background: rgba(56, 189, 248, 0.08); border-color: rgba(56, 189, 248, 0.3); font-size: 13px;">
+          💡 <strong>Vantagem Operacional:</strong> A API HTTP responde ao cliente em milissegundos entregando um <code>task_id</code>. Não há travamento ou timeout de conexões sob alto volume.
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 4: Hiper-Performance e Vector Router -->
+    <div class="slide">
+      <div class="glass" style="padding: 40px;">
+        <div style="margin-bottom: 24px;">
+          <span style="color: var(--cyan); font-size: 12px; font-weight: 700; text-transform: uppercase;">Otimização de Latência</span>
+          <h2 style="font-size: 28px; font-weight: 800; margin-top: 4px;">Roteamento Semântico e Concorrência Paralela</h2>
+        </div>
+
+        <div class="grid-2">
+          <div class="glass" style="padding: 24px;">
+            <h3 style="font-size: 16px; font-weight: 700; color: var(--cyan); margin-bottom: 12px;">⚡ Paralelismo no Supervisor (`asyncio.gather`)</h3>
+            <p style="font-size: 14px; color: var(--text-muted); line-height: 1.6; margin-bottom: 16px;">
+              Eliminamos a execução sequencial em cascata. O Guardrail de segurança e o Roteamento Vetorial disparam <strong>simultaneamente</strong>.
+            </p>
+            <div class="glass" style="padding: 14px; font-family: monospace; font-size: 13px; color: var(--emerald);">
+              ⏱️ Latência Anterior: ~3.500 ms<br>
+              🚀 Nova Latência: <strong style="color: #38bdf8;">~800 ms - 1.200 ms (Ganho de ~70%)</strong>
+            </div>
+          </div>
+
+          <div class="glass" style="padding: 24px;">
+            <h3 style="font-size: 16px; font-weight: 700; color: var(--purple); margin-bottom: 12px;">🧠 Vector Router no Qdrant (< 50ms)</h3>
+            <p style="font-size: 14px; color: var(--text-muted); line-height: 1.6; margin-bottom: 16px;">
+              Ao invés de usar LLMs lentos para decidir se a pergunta é sobre vendas ou suporte, comparamos o embedding do usuário com protótipos na coleção <code>routes_index</code>.
+            </p>
+            <ul style="font-size: 13px; color: var(--text-main); line-height: 1.8;">
+              <li>🎯 <strong>Similaridade de Cossenos:</strong> Decisão precisa em <50ms.</li>
+              <li>💬 <strong>Small Talk Direto:</strong> Saudações respondidas sem acionar o Kafka.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 5: Governança com LLM-as-a-Judge -->
+    <div class="slide">
+      <div class="glass" style="padding: 40px;">
+        <div style="margin-bottom: 24px;">
+          <span style="color: var(--amber); font-size: 12px; font-weight: 700; text-transform: uppercase;">Auditoria Automática</span>
+          <h2 style="font-size: 28px; font-weight: 800; margin-top: 4px;">LLM-as-a-Judge: Blindagem Contra Alucinações</h2>
+        </div>
+
+        <div class="grid-3" style="margin-bottom: 24px;">
+          <div class="glass" style="padding: 20px;">
+            <div style="width: 28px; height: 28px; border-radius: 50%; background: var(--blue); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 12px; margin-bottom: 12px;">1</div>
+            <div style="font-weight: 700; font-size: 15px; margin-bottom: 6px;">Geração Primária</div>
+            <div style="font-size: 12px; color: var(--text-muted);">O worker especialista recupera o contexto oficial (catálogo/tickets) e formula a resposta.</div>
+          </div>
+
+          <div class="glass" style="padding: 20px; border: 1px solid var(--amber); background: rgba(251, 191, 36, 0.05);">
+            <div style="width: 28px; height: 28px; border-radius: 50%; background: var(--amber); color: #000; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 12px; margin-bottom: 12px;">2</div>
+            <div style="font-weight: 700; font-size: 15px; color: var(--amber); margin-bottom: 6px;">Auditoria do Juiz</div>
+            <div style="font-size: 12px; color: var(--text-muted);">O <code>LLMJudge</code> checa se cada afirmação tem correspondência estrita na base factual.</div>
+          </div>
+
+          <div class="glass" style="padding: 20px;">
+            <div style="width: 28px; height: 28px; border-radius: 50%; background: var(--emerald); color: #000; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 12px; margin-bottom: 12px;">3</div>
+            <div style="font-weight: 700; font-size: 15px; margin-bottom: 6px;">Veredito Imediato</div>
+            <div style="font-size: 12px; color: var(--text-muted);">
+              <strong>PASS:</strong> Entregue ao cliente.<br>
+              <strong>FAIL:</strong> Alucinação descartada e substituída por mensagem segura.
+            </div>
+          </div>
+        </div>
+
+        <div class="glass" style="padding: 16px 24px; border-color: rgba(251, 191, 36, 0.3); background: rgba(251, 191, 36, 0.08); font-size: 13px;">
+          🛡️ <strong>Compliance Garantido:</strong> Preços errados, políticas inexistentes ou dados confidenciais inventados jamais chegam ao cliente.
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 6: Observabilidade & LLMOps -->
+    <div class="slide">
+      <div class="glass" style="padding: 40px;">
+        <div style="margin-bottom: 24px;">
+          <span style="color: var(--purple); font-size: 12px; font-weight: 700; text-transform: uppercase;">Gestão Financeira & LLMOps</span>
+          <h2 style="font-size: 28px; font-weight: 800; margin-top: 4px;">Observabilidade em Tempo Real no Langfuse</h2>
+        </div>
+
+        <div class="grid-2">
+          <div class="glass" style="padding: 24px;">
+            <h3 style="font-size: 16px; font-weight: 700; color: var(--purple); margin-bottom: 12px;">📊 Rastreamento Completo de Custos & Latência</h3>
+            <ul style="font-size: 13px; color: var(--text-muted); line-height: 1.8; list-style: none;">
+              <li>💰 <strong>Model Costs:</strong> Cálculo automático do custo exato em dólares por requisição e modelo.</li>
+              <li>⏱️ <strong>Latência Detalhada:</strong> Métricas p50, p90 e p99 por etapa do grafo.</li>
+              <li>🔍 <strong>Traces & Spans:</strong> Auditoria visual de cada chamada de IA.</li>
+            </ul>
+          </div>
+
+          <div class="glass" style="padding: 24px;">
+            <h3 style="font-size: 16px; font-weight: 700; color: var(--emerald); margin-bottom: 12px;">🏷️ Tags e Scores de Qualidade</h3>
+            <ul style="font-size: 13px; color: var(--text-muted); line-height: 1.8; list-style: none;">
+              <li>🎯 <strong>Scores Automáticos:</strong> Gravação de <code>score: 1.0</code> (Aprovado) e <code>score: 0.0</code> (Alucinação).</li>
+              <li>🚩 <strong>Filtro de Falhas:</strong> Tag <code>hallucination</code> para auditar em 1 clique qualquer inconsistência.</li>
+              <li>📈 <strong>Melhoria Contínua:</strong> Dados prontos para fine-tuning e otimização de prompts.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 7: Produtividade do Time com ai_common -->
+    <div class="slide">
+      <div class="glass" style="padding: 40px;">
+        <div style="margin-bottom: 24px;">
+          <span style="color: var(--blue); font-size: 12px; font-weight: 700; text-transform: uppercase;">Engenharia Escalável</span>
+          <h2 style="font-size: 28px; font-weight: 800; margin-top: 4px;">Aceleração do Time com o Pacote `ai_common`</h2>
+        </div>
+
+        <div class="grid-2" style="align-items: center;">
+          <div>
+            <p style="font-size: 15px; color: var(--text-muted); line-height: 1.6; margin-bottom: 18px;">
+              Centralizamos toda a infraestrutura complexa na biblioteca compartilhada <code>packages/ai_common</code>:
+            </p>
+            <div class="glass" style="padding: 16px; font-size: 13px; line-height: 1.8;">
+              <div>📦 <strong>Kafka Resiliente:</strong> Retries com Exponential Backoff e Graceful Shutdown.</div>
+              <div>📬 <strong>Dead Letter Queue:</strong> Encaminhamento automático de falhas para <code>tasks_dlq</code>.</div>
+              <div>⚖️ <strong>Judge Unificado:</strong> 1 linha de código para auditar qualquer resposta de worker.</div>
+              <div>🛡️ <strong>Segurança SQL:</strong> Consultas 100% parametrizadas imunes a SQL Injection.</div>
+            </div>
+          </div>
+
+          <div class="glass" style="padding: 36px; text-align: center; border: 1px solid var(--cyan); background: rgba(56, 189, 248, 0.05);">
+            <div style="font-size: 52px; font-weight: 900; color: var(--cyan); line-height: 1;">10 min</div>
+            <div style="font-size: 14px; font-weight: 700; margin-top: 8px; text-transform: uppercase; color: var(--text-main);">Tempo para criar um novo agente</div>
+            <p style="font-size: 12px; color: var(--text-muted); margin-top: 12px; line-height: 1.5;">
+              Para plugar agentes de <em>Faturamento</em>, <em>Logística</em> ou <em>RH</em>, basta herdar a classe base do <code>ai_common</code>.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 8: ROI & Conclusão -->
+    <div class="slide">
+      <div class="glass" style="padding: 40px; text-align: center;">
+        <div style="margin-bottom: 24px;">
+          <span style="color: var(--emerald); font-size: 12px; font-weight: 700; text-transform: uppercase;">Conclusão Executiva</span>
+          <h2 style="font-size: 28px; font-weight: 800; margin-top: 4px;">Resumo do Retorno sobre Investimento (ROI)</h2>
+        </div>
+
+        <div class="grid-3" style="text-align: left; margin-bottom: 28px;">
+          <div class="glass" style="padding: 24px; border-top: 3px solid var(--emerald); background: rgba(52, 211, 153, 0.04);">
+            <div style="font-size: 24px; margin-bottom: 8px;">💰</div>
+            <div style="font-weight: 700; font-size: 15px; margin-bottom: 6px; color: var(--emerald);">Otimização de Custo</div>
+            <div style="font-size: 12px; color: var(--text-muted); line-height: 1.5;">Roteador vetorial (< 50ms) e triagem com <code>gpt-4o-mini</code> antes de acionar modelos mais pesados.</div>
+          </div>
+
+          <div class="glass" style="padding: 24px; border-top: 3px solid var(--cyan); background: rgba(56, 189, 248, 0.04);">
+            <div style="font-size: 24px; margin-bottom: 8px;">🛡️</div>
+            <div style="font-weight: 700; font-size: 15px; margin-bottom: 6px; color: var(--cyan);">Segurança & Qualidade</div>
+            <div style="font-size: 12px; color: var(--text-muted); line-height: 1.5;">Bloqueio de Jailbreak na borda, imunidade a SQLi e 100% dos 17 testes automatizados aprovados.</div>
+          </div>
+
+          <div class="glass" style="padding: 24px; border-top: 3px solid var(--purple); background: rgba(192, 132, 252, 0.04);">
+            <div style="font-size: 24px; margin-bottom: 8px;">📈</div>
+            <div style="font-weight: 700; font-size: 15px; margin-bottom: 6px; color: var(--purple);">Escalabilidade Real</div>
+            <div style="font-size: 12px; color: var(--text-muted); line-height: 1.5;">Ecossistema desacoplado em microsserviços e mensageria assíncrona pronto para escalar horizontalmente.</div>
+          </div>
+        </div>
+
+        <div>
+          <a href="index.html" class="btn btn-primary" style="padding: 12px 28px; font-size: 15px;">
+            ✨ Explorar Mapa Mental Interativo da Arquitetura
+          </a>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Footer Navigation Info -->
+  <footer>
+    <div>
+      Dica: Navegue com as setas <strong>◀ Esquerda</strong> e <strong>Direita ▶</strong> ou pela barra superior.
+    </div>
+    <div style="display: flex; align-items: center; gap: 8px;">
+      <span style="width: 8px; height: 8px; border-radius: 50%; background: var(--emerald); display: inline-block;"></span>
+      <span style="font-weight: 600; color: var(--text-main);">Engenharia de IA & Arquitetura Corporativa</span>
+    </div>
+  </footer>
+
+  <script>
+    let currentSlide = 0;
+    const slides = document.querySelectorAll('.slide');
+    const indicator = document.getElementById('slideIndicator');
+
+    function updateSlide(index) {
+      slides.forEach((s, i) => {
+        s.classList.toggle('active', i === index);
+      });
+      indicator.textContent = `Slide ${index + 1} / ${slides.length}`;
+      currentSlide = index;
+    }
+
+    function nextSlide() {
+      if (currentSlide < slides.length - 1) {
+        updateSlide(currentSlide + 1);
+      }
+    }
+
+    function prevSlide() {
+      if (currentSlide > 0) {
+        updateSlide(currentSlide - 1);
+      }
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === ' ') {
+        nextSlide();
+      } else if (e.key === 'ArrowLeft') {
+        prevSlide();
+      }
+    });
+  </script>
+</body>
+</html>
