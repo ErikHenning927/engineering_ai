@@ -15,6 +15,7 @@ router = APIRouter()
 
 class OrchestrateRequest(BaseModel):
     query: str = Field(..., description="A mensagem, pergunta ou pedido do usuário", example="Notebook Pro X")
+    worker: Optional[str] = Field(None, description="Worker especialista de destino opcional (ex: 'assistant', 'recommend', 'billing'). Se omitido, o orquestrador classifica automaticamente.", example="assistant")
 
 class TaskResponse(BaseModel):
     task_id: str
@@ -28,20 +29,24 @@ class TaskResponse(BaseModel):
 async def orchestrate(request: Request):
     """
     Ponto de entrada assíncrono do Orquestrador LangGraph.
+    Aceita 'query' (obrigatório) e 'worker' / 'target_worker' (opcional para direcionamento direto).
     Resiliente a qualquer formato de cliente (JSON, Raw JSON String, Form, etc.).
     """
     query_str = None
+    target_worker = None
     
     # 1. Tenta interpretar como JSON
     try:
         body_data = await request.json()
         if isinstance(body_data, dict):
             query_str = body_data.get("query")
+            target_worker = body_data.get("worker") or body_data.get("target_worker")
         elif isinstance(body_data, str):
             try:
                 parsed = json.loads(body_data)
                 if isinstance(parsed, dict):
                     query_str = parsed.get("query")
+                    target_worker = parsed.get("worker") or parsed.get("target_worker")
                 else:
                     query_str = body_data
             except Exception:
@@ -54,6 +59,7 @@ async def orchestrate(request: Request):
         try:
             form = await request.form()
             query_str = form.get("query")
+            target_worker = form.get("worker") or form.get("target_worker")
         except Exception:
             pass
 
@@ -68,6 +74,7 @@ async def orchestrate(request: Request):
                         parsed = json.loads(decoded)
                         if isinstance(parsed, dict):
                             query_str = parsed.get("query")
+                            target_worker = parsed.get("worker") or parsed.get("target_worker")
                     except Exception:
                         pass
                 if not query_str:
@@ -78,11 +85,12 @@ async def orchestrate(request: Request):
     if not query_str or not str(query_str).strip():
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail="O campo 'query' é obrigatório no corpo da requisição (ex: {\"query\": \"Notebook Pro X\"})."
+            detail="O campo 'query' é obrigatório no corpo da requisição (ex: {\"query\": \"Notebook Pro X\", \"worker\": \"assistant\"})."
         )
 
     clean_query = str(query_str).strip()
-    result = await process_with_langgraph(clean_query)
+    clean_worker = str(target_worker).strip() if target_worker else None
+    result = await process_with_langgraph(clean_query, target_worker=clean_worker)
     return result
 
 @router.get("/tasks/{task_id}", response_model=TaskResponse)

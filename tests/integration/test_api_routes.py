@@ -65,3 +65,28 @@ def test_orchestrate_blocked_prompt_injection(client: TestClient):
         assert data["status"] == "blocked"
         assert data["is_safe"] is False
         assert data["intent"] == "security_violation"
+
+def test_orchestrate_direct_worker_override(client: TestClient):
+    """Testa chamada com direcionamento direto de worker."""
+    mock_process = AsyncMock(return_value={
+        "status": "success",
+        "task_id": "test-direct-worker-123",
+        "is_safe": True,
+        "security_reason": "Entrada segura",
+        "intent": "support",
+        "message": "O Especialista Assistente Técnico foi acionado.",
+        "parameters": {"produto": "Troca de tela", "direct_worker": "assistant"}
+    })
+    
+    with patch("app.api.routes.process_with_langgraph", mock_process):
+        response = client.post(
+            "/orchestrate",
+            json={"query": "Troca de tela", "worker": "assistant"}
+        )
+        
+        assert response.status_code == 200
+        data = response.json()
+        assert data["status"] == "success"
+        assert data["task_id"] == "test-direct-worker-123"
+        assert data["intent"] == "support"
+        mock_process.assert_called_once_with("Troca de tela", target_worker="assistant")

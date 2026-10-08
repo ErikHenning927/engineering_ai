@@ -212,6 +212,15 @@ curl -X POST http://localhost:8001/orchestrate \
   -d '{"query": "Meu monitor veio com dead pixel, como funciona a troca?"}'
 ```
 
+### 8.3 Direcionamento Direto de Worker (Bypass Opcional do Roteador)
+Caso o cliente ou frontend já saiba qual worker deve atender a requisição:
+```bash
+curl -X POST http://localhost:8001/orchestrate \
+  -H "Content-Type: application/json" \
+  -d '{"query": "Como resetar minha senha?", "worker": "assistant"}'
+```
+* **Comportamento:** O Guardrail de segurança ainda audita a mensagem contra ataques (Prompt Injection/SQLi), mas o roteamento semântico vetorial é ignorado, despachando diretamente para o worker solicitado.
+
 ### 8.3 Polling do Resultado da Tarefa
 ```bash
 curl -X GET http://localhost:8001/tasks/700691b5-39fc-44a0-b6a3-ccf104b0f71a

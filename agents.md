@@ -99,13 +99,16 @@ Todos os microserviços utilizam a biblioteca interna `ai_common` para garantir 
 
 O supervisor em **LangGraph** opera com execução paralela para garantir latência ultra-baixa (~800ms a 1.2s):
 
-1. **`entry_evaluator`:** Executa concorrentemente (`asyncio.gather`) o `security_guardrail` (`gpt-4o-mini`) e o `vector_router` (Qdrant `routes_index`).
+1. **`entry_evaluator`:** 
+   - Se o cliente informar `worker` (ex: `"assistant"`, `"recommend"`, `"billing"`), o Roteador Vetorial é pulado e apenas o `security_guardrail` (`gpt-4o-mini`) valida a segurança antes de despachar diretamente.
+   - Caso contrário, executa concorrentemente (`asyncio.gather`) o `security_guardrail` e o `vector_router` (Qdrant `routes_index`).
 2. **`route_decision` (Conditional Edge):**
    - Se `is_safe == False` ➔ `security_block` ➔ `END`.
    - Se `intent == "recommend"` ➔ `dispatch_recommend` ➔ `END`.
    - Se `intent in ["support", "assistant"]` ➔ `dispatch_assistant` ➔ `END`.
+   - Se `intent in ["billing", "faturamento"]` ➔ `dispatch_billing` ➔ `END`.
    - Caso contrário ➔ `handle_fallback` ➔ `END`.
-3. **`dispatch_recommend` / `dispatch_assistant`:** Publica a tarefa no tópico Kafka correspondente e retorna o `task_id` imediatamente para polling.
+3. **`dispatch_recommend` / `dispatch_assistant` / `dispatch_billing`:** Publica a tarefa no tópico Kafka correspondente e retorna o `task_id` imediatamente para polling.
 4. **`handle_fallback`:** Responde saudações diretamente sem onerar o broker de mensageria.
 
 ---

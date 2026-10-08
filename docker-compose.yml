@@ -101,6 +101,7 @@ services:
       - ./tests:/tests
       - ./pytest.ini:/pytest.ini
       - ./migrations:/migrations
+      - .:/workspace
 
     depends_on:
       - kafka
